@@ -153,15 +153,11 @@ namespace ContosoUniversity.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var student = await _context.Students.FindAsync(id);
-            if (_context.Students == null)
-            {
-                return Problem("Entity set 'SchoolContext.Students'  is null.");
-            }
             try
             {
-                _context.Students.Remove(student);
-                await _context.SaveChangesAsync();
+                Student studentToDelete = new Student() { ID = id };
+                _context.Entry(studentToDelete).State = EntityState.Deleted;
+                await _context.Students.FindAsync();
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException /* ex */)
