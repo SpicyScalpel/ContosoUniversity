@@ -60,7 +60,7 @@ namespace ContosoUniversity.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CourseID,Credits,DepartmentID,Title")] Course course)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 _context.Add(course);
                 await _context.SaveChangesAsync();
@@ -104,7 +104,7 @@ namespace ContosoUniversity.Controllers
             var courseToUpdate = await _context.Courses
                 .FirstOrDefaultAsync(c => c.CourseID == id);
 
-            if (await TryUpdateModelAsync<Course>(courseToUpdate,
+            if (!await TryUpdateModelAsync<Course>(courseToUpdate,
                 "",
                 c => c.Credits, c => c.DepartmentID, c => c.Title))
             {
