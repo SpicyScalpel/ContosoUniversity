@@ -118,8 +118,6 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Students/Edit/5
-        [HttpPost, ActionName("Edit")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Students == null)
@@ -127,8 +125,7 @@ namespace ContosoUniversity.Controllers
                 return NotFound();
             }
 
-            var student = await _context.Students
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var student = await _context.Students.FindAsync(id);
             if (student == null)
             {
                 return NotFound();
@@ -193,17 +190,26 @@ namespace ContosoUniversity.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (_context.Students == null)
+            {
+                return Problem("Entity set 'SchoolContext.Students' is null.");
+            }
+            var student = await _context.Students.FindAsync(id);
+            if (student == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             try
             {
-                Student studentToDelete = new Student() { ID = id };
-                _context.Entry(studentToDelete).State = EntityState.Deleted;
-                await _context.Students.FindAsync();
+                _context.Students.Remove(student);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException /* ex */)
             {
                 //Log the error (uncomment ex variable name and write a log.)
-                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+                return RedirectToAction(nameof(Delete), new { id, saveChangesError = true });
             }
         }
 
